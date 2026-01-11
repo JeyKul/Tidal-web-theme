@@ -3,13 +3,7 @@ tidal.com
 
 # HOW TO INSTALL
 
-## Get this Browser Extention
-https://www.tampermonkey.net/
-
-### Then click on the Extention
-### Click on "Create a new Script"
-### Paste the contents of "TidalPolish.js" into the new Tab that opened.
-### Press "CTRL + S" and reload Tidal website.
+https://openuserjs.org/scripts/JeyKul/Tidal_Polish
 
 # Why would you install this?
 - MODERNIZED UI
