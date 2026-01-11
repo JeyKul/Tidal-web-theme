@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         Tidal Polish
-// @namespace    tidal-polish
-// @version      1.1
-// @description  Lyrics polish, smooth scroll, max-res draggable images & looping videos, remove overlays, album hover + border-radius tweak + 3D look-at-cursor album cover + vibrant radial background
-// @match        *://*.tidal.com/*
-// @grant        none
-// @license      WTFPL
+// @name               Tidal Polish
+// @description        Lyrics polish, smooth scroll, max-res draggable images & looping videos, remove overlays, album hover + border-radius tweak + 3D look-at-cursor album cover + vibrant radial background
+// @match              *://*.tidal.com/*
+// @copyright          2026, JeyKul
+// @license            WTFPL
+// @contributionURL    https://github.com/JeyKul/Tidal-web-theme
+// @version             1.1.0
+// @updateURL https://openuserjs.org/meta/JeyKul/TidalPolish.user.js
 // ==/UserScript==
 
 (function () {
