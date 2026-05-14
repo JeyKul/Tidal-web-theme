@@ -5,7 +5,7 @@
 // @description    Lyrics polish, smooth scroll, max-res draggable images & looping videos, remove overlays, album hover + border-radius tweak + 3D look-at-cursor album cover + vibrant radial background, toggle
 // @author         JeyKul
 // @copyright      2026, JeyKul
-// @license        CC
+// @license        MIT
 // @match          *://*.tidal.com/*
 // @updateURL      https://openuserjs.org/meta/JeyKul/TidalPolish.user.js
 // @contributionURL https://github.com/JeyKul/Tidal-web-theme
