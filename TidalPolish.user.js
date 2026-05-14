@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Tidal Polish Lite Fixed
+// @name         Tidal Polish
 // @namespace    https://openuserjs.org/users/JeyKul
 // @version      2.0.0
 // @description  Lightweight TIDAL polish with subtle floating fullscreen artwork, darker artwork-based blobs, fullscreen metadata via aria-hidden, and quick toggles
