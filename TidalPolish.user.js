@@ -1,17 +1,14 @@
 // ==UserScript==
-// @name           Tidal Polish
-// @namespace      https://openuserjs.org/users/JeyKul
-// @version        2.0.0
-// @description    Lyrics polish, smooth scroll, max-res draggable images & looping videos, remove overlays, album hover + border-radius tweak + 3D look-at-cursor album cover + vibrant radial background, toggle
-// @author         JeyKul
-// @copyright      2026, JeyKul
-// @license        MIT
-// @match          *://*.tidal.com/*
-// @updateURL      https://openuserjs.org/meta/JeyKul/TidalPolish.user.js
-// @contributionURL https://github.com/JeyKul/Tidal-web-theme
+// @name         Tidal Polish Lite Fixed
+// @namespace    https://openuserjs.org/users/JeyKul
+// @version      2.0.0
+// @description  Lightweight TIDAL polish with subtle floating fullscreen artwork, darker artwork-based blobs, fullscreen metadata via aria-hidden, and quick toggles
+// @author       JeyKul
+// @license      MIT
+// @match        *://*.tidal.com/*
+// @require      https://raw.githubusercontent.com/jariz/vibrant.js/refs/heads/master/dist/Vibrant.min.js
+// @grant        none
 // ==/UserScript==
-
-// WARNING: LICENSE GOT CHANGED
 
 (function () {
   'use strict';
@@ -38,8 +35,7 @@
     mediaTimer: null,
     lyricsTimer: null,
     gradientTimer: null,
-    currentAnimation: null,
-    lyricObserverAttached: false
+    currentAnimation: null
   };
 
   const css = `
@@ -90,20 +86,21 @@
     }
 
     ._artworkWrapper_bca4689._artworkWrapperHidden_7e72bc4
-     > ._artworkContainer_a3f2f92._artworkShifted_92ad2d0 {
-     animation: tpArtworkFloat 6s ease-in-out infinite !important;
-     will-change: transform;
+    > ._artworkContainer_a3f2f92._artworkShifted_92ad2d0 {
+      animation: tpArtworkFloat 6s ease-in-out infinite !important;
+      will-change: transform;
     }
 
     @keyframes tpArtworkFloat {
-   0% {
-		transform: translatey(0px);
-	}
-	50% {
-		transform: translatey(-20px);
-	}
-	100% {
-		transform: translatey(0px);
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+      100% {
+        transform: translateY(0);
+      }
     }
 
     .tp-meta {
@@ -150,13 +147,13 @@
 
     .tp-toggle-btn {
       position: fixed;
-      right: 18px;
-      bottom: 94px;
+      right: 20px;
+      bottom: 120px;
       width: 42px;
       height: 42px;
       border: 0;
       border-radius: 999px;
-      z-index: 9999;
+      z-index: 2147483647;
       background: rgba(15,15,17,0.68);
       color: rgba(255,255,255,0.94);
       backdrop-filter: blur(12px);
@@ -168,11 +165,11 @@
     .tp-panel {
       position: fixed;
       right: 18px;
-      bottom: 144px;
+      bottom: 170px;
       width: min(280px, calc(100vw - 28px));
       padding: 12px;
       border-radius: 18px;
-      z-index: 9999;
+      z-index: 2147483647;
       background: rgba(12,12,14,0.76);
       color: rgba(255,255,255,0.95);
       backdrop-filter: blur(16px);
@@ -252,7 +249,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html.tp-floating-art-on ._player_8c80ae6.nowPlayingVisible .tp-art-float-wrap.tp-art-floating {
+      ._artworkWrapper_bca4689._artworkWrapperHidden_7e72bc4
+      > ._artworkContainer_a3f2f92._artworkShifted_92ad2d0 {
         animation: none !important;
       }
     }
@@ -295,6 +293,16 @@
     state.currentAnimation = { frame: requestAnimationFrame(step) };
   }
 
+  function centerLyric(line) {
+    const container = findScrollContainer();
+    if (!container || !line || !settings.lyricFocus) return;
+    const lineTop = line.offsetTop;
+    const lineHeight = line.offsetHeight;
+    const containerHeight = container.clientHeight;
+    const targetScrollTop = lineTop - containerHeight / 3 + lineHeight / 2;
+    animateScroll(container, Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight)));
+  }
+
   function attachLyricObserver() {
     document.querySelectorAll('span[data-test="lyrics-line"]').forEach(el => {
       if (el.dataset.lyricObserved === '1') return;
@@ -309,6 +317,17 @@
       });
       lyricObserver.observe(el, { attributes: true, attributeFilter: ['data-current'] });
     });
+  }
+
+  function upgradeMedia() {
+    document.querySelectorAll('img._cellImage_0ef8dd3').forEach(img => {
+      const src = img.srcset?.split(',').pop()?.trim().split(' ')[0] || img.src;
+      if (src && img.src !== src) img.src = src;
+      if (img.srcset) img.srcset = '';
+      if (img.sizes) img.sizes = '';
+    });
+
+    document.querySelectorAll('div._albumImageOverlay_2eabc2b').forEach(overlay => overlay.remove());
   }
 
   function getFooterAlbumImage() {
@@ -373,24 +392,12 @@
     const container = document.querySelector('._player_8c80ae6.nowPlayingVisible ._artworkContainer_a3f2f92');
     if (!container) return;
 
-    if (container.parentElement && container.parentElement.classList.contains('tp-art-float-wrap')) {
-      state.artFloatHost = container.parentElement;
-      state.artFloatHost.classList.toggle('tp-art-floating', settings.floatingArt);
-      return;
-    }
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'tp-art-float-wrap';
-    container.parentNode.insertBefore(wrapper, container);
-    wrapper.appendChild(container);
-    state.artFloatHost = wrapper;
-    state.artFloatHost.classList.toggle('tp-art-floating', settings.floatingArt);
+    state.artFloatHost = container;
   }
 
   function updateFloatingArtworkState() {
     ensureFloatingArtworkWrapper();
     if (!state.artFloatHost) return;
-    state.artFloatHost.classList.toggle('tp-art-floating', settings.floatingArt);
   }
 
   function clamp(v, min, max) {
@@ -539,10 +546,10 @@
     state.panelEl.innerHTML = `
       <div class="tp-panel-title">Tidal Polish</div>
       ${[
-        ['blobs', 'Animated blobs', 'Dark, lighter-cost background'],
-        ['floatingArt', 'Floating artwork', 'Subtle artwork container hover'],
-        ['fullscreenMeta', 'Fullscreen metadata', 'Uses aria-hidden="true" state'],
-        ['lyricFocus', 'Lyrics focus', 'Blur inactive lines']
+        ['blobs', 'Animated Background', ''],
+        ['floatingArt', 'Floating artwork', ''],
+        ['fullscreenMeta', 'Song info', 'Shows Singer and Track name when fullscreen'],
+        ['lyricFocus', 'Lyrics focus', 'Blurs not sung lines']
       ].map(([key, name, desc]) => `
         <div class="tp-setting">
           <div>
